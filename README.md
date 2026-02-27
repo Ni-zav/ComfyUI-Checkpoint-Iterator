@@ -21,19 +21,18 @@ A custom node for ComfyUI that allows you to easily iterate through all of your 
 3. (Optional) Connect `CKPT_NAME` to your filename prefix so each saved image includes the model name.
 4. Queue multiple prompts from the main queue controls.
 
-### Auto mode (default)
+### Iteration behavior
 
-If `batch_index` is not connected, the node now advances automatically on each execution.
+This node has no index input now. It advances automatically on each execution.
 
 - 1st execution -> checkpoint 0
 - 2nd execution -> checkpoint 1
 - ...
 - wraps with modulo when it reaches the end
 
-### Manual mode (optional)
+### Memory behavior
 
-If you connect `batch_index`, the node uses that value directly (`batch_index % total_checkpoints`).
-Use this only when you need explicit external control.
+Before loading the next checkpoint, the node unloads previous models and clears cache to reduce VRAM carry-over between checkpoints.
 
 ### Important note about "batch"
 
