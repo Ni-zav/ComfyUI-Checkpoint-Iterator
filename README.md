@@ -17,12 +17,28 @@ A custom node for ComfyUI that allows you to easily iterate through all of your 
 ## Usage
 
 1. In the ComfyUI canvas, right-click and go to **Add Node -> loaders -> Checkpoint Loader Iterator**.
-2. Right-click the newly added node and select **Convert batch_index to input**.
-3. Add a **Primitive Node** (Add Node -> utils -> Primitive).
-4. Connect the Primitive node to the `batch_index` input of the Checkpoint Loader.
-5. Select the Primitive node in the UI and set its `control_after_generate` behavior from `fixed` to **`increment`**.
-6. Set the **Batch count** in the ComfyUI main control panel to the number of checkpoints you want to test (e.g., 10, 30).
-7. Click **Queue Prompt**.
+2. Connect `MODEL`, `CLIP`, and `VAE` outputs into your normal pipeline (`KSampler`, encoders, etc.).
+3. (Optional) Connect `CKPT_NAME` to your filename prefix so each saved image includes the model name.
+4. Queue multiple prompts from the main queue controls.
+
+### Auto mode (default)
+
+If `batch_index` is not connected, the node now advances automatically on each execution.
+
+- 1st execution -> checkpoint 0
+- 2nd execution -> checkpoint 1
+- ...
+- wraps with modulo when it reaches the end
+
+### Manual mode (optional)
+
+If you connect `batch_index`, the node uses that value directly (`batch_index % total_checkpoints`).
+Use this only when you need explicit external control.
+
+### Important note about "batch"
+
+`KSampler` latent/image batch size is not the same as queue iteration count.
+To iterate checkpoints, queue multiple executions (prompt queue), not just a larger sampler batch size.
 
 ## How it works
 
