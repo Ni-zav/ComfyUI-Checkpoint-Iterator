@@ -10,7 +10,7 @@ A custom node for ComfyUI that allows you to easily iterate through all of your 
    ```
 2. Clone this repository (or copy the folder into the `custom_nodes` directory).
    ```bash
-   git clone https://github.com/yourusername/ComfyUI-Checkpoint-Iterator.git
+   git clone https://github.com/Ni-zav/ComfyUI-Checkpoint-Iterator.git
    ```
 3. Restart ComfyUI.
 
