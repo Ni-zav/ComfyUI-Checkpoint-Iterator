@@ -47,6 +47,50 @@ For each image generated in the batch queue, the Primitive node will increment t
 *   **MODEL, CLIP, VAE:** The standard outputs required for ComfyUI workflows.
 *   **CKPT_NAME:** (String) The exact filename of the checkpoint currently loaded. You can route this string into a custom "Save Image" node to automatically include the model name in your generated image filenames for easy comparison.
 
+## Paired checkpoint evaluation (companion CLI)
+
+The included `checkpoint_eval.py` provides **reproducible operational comparisons**
+between checkpoints using the ComfyUI HTTP API. It does not rate image quality or
+claim one model is better without a separately designed evaluation.
+
+Export a **complete API-format** ComfyUI workflow (not a regular UI-only JSON export),
+using a built-in `CheckpointLoaderSimple` and a sampler with an editable `seed`
+input. Identify both numeric node IDs from the exported JSON.
+
+```sh
+# Offline: confirm every model gets exactly the same seeds
+python checkpoint_eval.py --workflow workflow_api.json \
+  --loader-id 4 --sampler-id 8 \
+  --checkpoints model-a.safetensors model-b.safetensors \
+  --seeds 101 202 --dry-run
+
+# Live: requires a locally running ComfyUI server and the named checkpoints
+python checkpoint_eval.py --workflow workflow_api.json \
+  --loader-id 4 --sampler-id 8 \
+  --checkpoints model-a.safetensors model-b.safetensors \
+  --seeds 101 202 --out results.jsonl
+
+# Offline summary of completed, failed, and wall-clock execution times
+python checkpoint_eval.py --report results.jsonl
+```
+
+The benchmark deliberately uses `CheckpointLoaderSimple`, not the automatic
+iterator: model selection must be **explicit and paired** to compare runs fairly.
+It deep-copies the source workflow, pins model and seed per trial, queues jobs,
+polls history, writes a JSONL row even on failure, and summarizes execution
+latency and output counts. These are **operational metrics**, not FID, CLIP,
+human preference, or model-quality scores. Queue contention, GPU model, caches,
+warmup runs, backend versions, prompts and generation parameters matter; report
+them alongside results. Do not publish generated files or results containing
+private prompts without reviewing them.
+
+```sh
+python -m unittest discover -s tests -v
+```
+
+No Python dependencies are needed for the evaluator itself; executing real
+generation still requires ComfyUI and its model dependencies.
+
 ## License
 
 MIT License
